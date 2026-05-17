@@ -14,6 +14,18 @@ public class BlinkText : MonoBehaviour
         StartCoroutine(Blink());
     }
 
+    public IEnumerator BlinkTimes(int count, float interval)
+    {
+        StopAllCoroutines();
+        _text.enabled = true;
+        for (int i = 0; i < count * 2; i++)
+        {
+            _text.enabled = !_text.enabled;
+            yield return new WaitForSeconds(interval);
+        }
+        _text.enabled = true;
+    }
+
     IEnumerator Blink()
     {
         while (true)

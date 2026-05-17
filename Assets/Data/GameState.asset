@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4d3401c8fd7fb845b9f102cffe8e0eb, type: 3}
+  m_Name: GameState
+  m_EditorClassIdentifier: 
+  distanceScore: 0
+  coinCount: 3
+  waveCount: 0
+  companions:
+  - {fileID: 11400000, guid: d88535c3be5f9334db043b6be8900e9c, type: 2}
+  - {fileID: 11400000, guid: 8d7f218b99beaa841976a3556303cf85, type: 2}
+  - {fileID: 11400000, guid: 97198270194a77045bb8551ee29ea69b, type: 2}
+  - {fileID: 11400000, guid: 0065c1db7aa6c4a409508e0e70f45ca3, type: 2}

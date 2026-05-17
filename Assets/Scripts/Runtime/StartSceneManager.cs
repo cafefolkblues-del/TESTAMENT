@@ -1,16 +1,21 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StartSceneManager : MonoBehaviour
 {
-    [SerializeField] string nextSceneName = "Tutorial";
+    [SerializeField] string nextSceneName = "CharacterSelect";
+    [SerializeField] float inputDelay = 0.5f;
+    [SerializeField] BlinkText _pressAnyKeyText;
+    [SerializeField] CanvasGroup _fadeOverlay;
+    [SerializeField] float keyBlinkInterval = 0.1f;
+    [SerializeField] float fadeDuration = 0.8f;
 
     bool _inputEnabled = false;
 
     void Start()
     {
-        // 씬 로드 직후 오입력 방지
-        Invoke(nameof(EnableInput), 0.5f);
+        Invoke(nameof(EnableInput), inputDelay);
     }
 
     void EnableInput() => _inputEnabled = true;
@@ -19,6 +24,25 @@ public class StartSceneManager : MonoBehaviour
     {
         if (!_inputEnabled) return;
         if (Input.anyKeyDown)
-            SceneManager.LoadScene(nextSceneName);
+        {
+            _inputEnabled = false;
+            StartCoroutine(PlayTransition());
+        }
+    }
+
+    IEnumerator PlayTransition()
+    {
+        yield return StartCoroutine(_pressAnyKeyText.BlinkTimes(2, keyBlinkInterval));
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            _fadeOverlay.alpha = elapsed / fadeDuration;
+            yield return null;
+        }
+        _fadeOverlay.alpha = 1f;
+
+        SceneManager.LoadScene(nextSceneName);
     }
 }

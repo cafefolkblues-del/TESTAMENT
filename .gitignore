@@ -3,6 +3,12 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+
+# Claude Code local state
+.claude/
+
+# Visual Studio config
+.vsconfig
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 
