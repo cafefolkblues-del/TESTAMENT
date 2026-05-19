@@ -177,9 +177,7 @@ MonoBehaviour:
   _panel: {fileID: 526298066}
   _scoreText: {fileID: 535494021}
   _coinText: {fileID: 1353700076}
-  _countdown: {fileID: 1014261404}
-  _fadeOverlay: {fileID: 1179027936}
-  _gameOverFadeDuration: 10
+  _fadeInDuration: 0.3
 --- !u!225 &526298066
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -490,8 +488,11 @@ MonoBehaviour:
   _roster: {fileID: 11400000, guid: e7658c379b99b8442981e782bddf6cac, type: 2}
   _spawner: {fileID: 2053069536}
   _resultUI: {fileID: 526298065}
+  _countdown: {fileID: 1014261404}
   _playerController: {fileID: 1223603064}
   _playerHealth: {fileID: 1223603063}
+  _fadeOverlay: {fileID: 526298066}
+  _gameOverFadeDuration: 10
 --- !u!4 &974445535
 Transform:
   m_ObjectHideFlags: 0

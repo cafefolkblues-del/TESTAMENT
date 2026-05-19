@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+// CanvasGroup RequireComponent 이유 — 본체 시차 페이드 인 위해 prefab에 강제 부착
+[RequireComponent(typeof(CanvasGroup))]
 public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    [SerializeField] CharacterData _data;
     [SerializeField] Image _portrait;
     [SerializeField] Image _border;
     [SerializeField] Image _flashOverlay;
@@ -18,16 +19,25 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [SerializeField] float nameSlideOffset = 12f;
 
     CharacterSelectManager _manager;
+    CanvasGroup _selfCanvasGroup;
     Material _mat;
     Vector3 _baseScale;
     float _nameBaseY;
     bool _locked;
     Coroutine _hoverAnim;
 
-    public CharacterData Data => _data;
+    // 외부 read-only — Init에서 주입된 캐릭터 데이터
+    public CharacterData Data { get; private set; }
 
     void Awake()
     {
+        // RequireComponent로 보장된 CanvasGroup 캐시 — Manager의 시차 페이드인 대상
+        _selfCanvasGroup = GetComponent<CanvasGroup>();
+        _selfCanvasGroup.alpha = 0f;   // 등장 전 비표시 — Manager가 FadeIn으로 0→1
+        _locked = true;                // 등장 완료 전까지 호버/클릭 차단
+
+        // new Material 인스턴스 생성 이유 — 패널마다 _GrayscaleAmount를 독립 토글
+        // (sharedMaterial이면 호버 시 모든 패널이 동시 변화)
         _mat = new Material(_grayscaleMaterialTemplate);
         _portrait.material = _mat;
         _baseScale = transform.localScale;
@@ -41,14 +51,24 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     void OnDestroy() => Destroy(_mat);
 
-    public void Init(CharacterSelectManager manager)
+    // 동적 생성 시 Manager가 호출 — 매니저 참조 + 캐릭터 데이터 주입
+    public void Init(CharacterSelectManager manager, CharacterData data)
     {
         _manager = manager;
-        _portrait.sprite = _data != null ? _data.portrait : null;
-        _nameText.text   = _data != null ? _data.characterName : string.Empty;
+        Data = data;
+        // null 가드 제거 이유 — 호출자(Manager) 책임. 누락 시 NRE로 즉시 발견
+        _portrait.sprite = data.portrait;
+        _nameText.text   = data.characterName;
     }
 
-    public void Lock() => _locked = true;
+    // 선택 후 다른 패널 클릭 차단 / 시차 등장 중 초기 입력 차단
+    public void Lock()   => _locked = true;
+    // 시차 등장 완료 후 Manager가 호출 — 호버/클릭 활성
+    public void Unlock() => _locked = false;
+
+    // 본체 페이드인 — Manager의 PanelsCascadeFadeIn에서 시차로 호출
+    // CanvasGroupExtensions.Fade로 일원화 (StartScene/Tutorial/CharacterSelect 페이드와 동일 경로)
+    public IEnumerator FadeIn(float duration) => _selfCanvasGroup.Fade(0f, 1f, duration);
 
     public void OnPointerEnter(PointerEventData e)
     {
@@ -70,6 +90,7 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _manager.OnPanelSelected(this);
     }
 
+    // 선택 시 흰색 플래시 N회 — Manager의 PlayTransition에서 yield return으로 chain
     public IEnumerator BlinkWhite(int count, float interval)
     {
         for (int i = 0; i < count * 2; i++)
@@ -85,6 +106,7 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (_hoverAnim != null) StopCoroutine(_hoverAnim);
     }
 
+    // 호버 전체 시각 변환을 한 메서드에 묶음 — 그레이스케일/스케일/보더/이름알파/이름Y 동시 보간
     IEnumerator AnimateHover(bool entering)
     {
         float fromGray        = _mat.GetFloat("_GrayscaleAmount");
