@@ -57,11 +57,14 @@ public class EnemySpawner : MonoBehaviour
         return pool[pool.Length - 1];
     }
 
+    // 거대형 등장 알림 — 대사 시스템이 구독해 생존 동료가 무전 예고 (GDD). 직접 RadioFeed 호출 안 함.
+    public static event System.Action OnGiantApproaching;
+
     void SpawnEnemy(EnemyData data)
     {
         if (data == null || _enemyPrefab == null) return;
-        // 거대형 등장 시 무전 경고 (GDD: 동료 무전 예고 — 현재는 스폰 시점 통보, 사전 예고는 추후)
-        if (data.enemyType == EnemyType.Giant) RadioFeed.Post("거대형 접근!");
+        // 거대형 스폰 시점 통보 (사전 예고 lookahead는 추후)
+        if (data.enemyType == EnemyType.Giant) OnGiantApproaching?.Invoke();
         // 제너릭 프리팹 1종을 EnemyData로 구성 (Instantiate 직후 Init). 풀링은 후순위.
         Instantiate(_enemyPrefab, _spawnPoint.position, Quaternion.identity).Init(data);
     }

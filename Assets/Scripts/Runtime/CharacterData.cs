@@ -25,4 +25,5 @@ public class CharacterData : ScriptableObject
     public float jumpForce;
     public AbilityType leftAbility;
     public AbilityType rightAbility;
+    public DialogueProfile dialogue;   // 대사 데이터 링크 (발화 빈도/배율/대사 풀)
 }

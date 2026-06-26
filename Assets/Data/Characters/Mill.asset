@@ -18,3 +18,4 @@ MonoBehaviour:
   jumpForce: 10
   leftAbility: 1
   rightAbility: 6
+  dialogue: {fileID: 11400000, guid: 91d7d37e7e31ebc409abdeba09e21334, type: 2}
