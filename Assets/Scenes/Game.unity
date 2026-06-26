@@ -1250,6 +1250,7 @@ MonoBehaviour:
   _resultUI: {fileID: 526298065}
   _countdown: {fileID: 1014261404}
   _playerLoader: {fileID: 1223603062}
+  _companionPrefab: {fileID: 5307814665653454705, guid: a9b25fbf703d0c14e8d7752cf2a22f5e, type: 3}
   _playerController: {fileID: 1223603064}
   _playerHealth: {fileID: 1223603063}
   _fadeOverlay: {fileID: 526298066}

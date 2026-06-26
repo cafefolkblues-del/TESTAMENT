@@ -14,6 +14,7 @@ public class GameSceneManager : MonoBehaviour
     [SerializeField] ResultUI          _resultUI;
     [SerializeField] ContinueCountdown _countdown;       // ResultUI에서 이관 — 사망 흐름 통제 통합
     [SerializeField] PlayerCharacterLoader _playerLoader; // 플레이어 로드 진입점 — Loader.Start 대신 Manager가 호출
+    [SerializeField] Companion             _companionPrefab; // 동료 엔티티 프리팹
     [SerializeField] PlayerController  _playerController;
     [SerializeField] PlayerHealth      _playerHealth;
     [SerializeField] CanvasGroup       _fadeOverlay;     // 게임오버 페이드 — Game 씬의 글로벌 오버레이
@@ -49,15 +50,27 @@ public class GameSceneManager : MonoBehaviour
 
     void InitCompanions()
     {
-        // 선택된 캐릭터를 제외한 나머지 4종을 동료 슬롯에 채움
+        // 포메이션 — 플레이어 기준 후방/측면 (placeholder, 추후 튜닝)
+        Vector2[] formation = { new Vector2(-2.5f, 0f), new Vector2(-4f, 0f), new Vector2(-2.5f, 1.5f), new Vector2(-4f, 1.5f) };
+
+        // 선택된 캐릭터를 제외한 나머지 4종을 동료 슬롯에 채우고 엔티티 스폰
         int slot = 0;
         foreach (var character in _roster.characters)
         {
             if (character == _selectedCharacter.character) continue;
             if (slot >= _gameState.companions.Count) break;
 
-            _gameState.companions[slot].character = character;
-            _gameState.companions[slot].Reset();
+            var data = _gameState.companions[slot];
+            data.character = character;
+            data.Reset();
+
+            if (_companionPrefab != null)
+            {
+                Vector2 off = slot < formation.Length ? formation[slot] : Vector2.zero;
+                var c = Instantiate(_companionPrefab, _playerController.transform.position + (Vector3)off, Quaternion.identity);
+                c.Init(data, _playerController.transform, off);
+                c.GetComponent<CompanionHealth>().Init(data);
+            }
             slot++;
         }
     }

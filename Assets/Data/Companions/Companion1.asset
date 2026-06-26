@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Companion1
   m_EditorClassIdentifier: 
   character: {fileID: 0}
-  hitCount: 0
+  maxHp: 3
+  currentHp: 0
   isAlive: 1
