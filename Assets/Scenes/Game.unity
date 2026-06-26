@@ -535,7 +535,7 @@ MonoBehaviour:
   _spawner: {fileID: 2053069536}
   _resultUI: {fileID: 526298065}
   _countdown: {fileID: 1014261404}
-  _playerLoader: {fileID: 0}
+  _playerLoader: {fileID: 1223603062}
   _playerController: {fileID: 1223603064}
   _playerHealth: {fileID: 1223603063}
   _fadeOverlay: {fileID: 526298066}
