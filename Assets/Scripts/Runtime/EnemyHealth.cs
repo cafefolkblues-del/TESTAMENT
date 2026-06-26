@@ -9,6 +9,9 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     int  _currentHp;
     bool _isDead;
 
+    // 적 처치 전역 이벤트 — UI(점수 바운스 등)가 구독. 개별 적 참조 없이 "누가 죽었다"만 통지.
+    public static event System.Action OnAnyKilled;
+
     public Faction Faction => Faction.Enemy;
 
     // 인스펙터 placeholder값 사용 (스폰 단계에서 Init으로 EnemyData.hp 주입 예정)
@@ -34,6 +37,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     void Die()
     {
         _isDead = true;
+        OnAnyKilled?.Invoke();   // 점수 바운스 등 처치 피드백 트리거
         Destroy(gameObject);
     }
 }

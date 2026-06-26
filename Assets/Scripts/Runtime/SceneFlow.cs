@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public enum SceneId
 {
     Start,
+    // TODO(Intro): GDD상 Start→Intro→Tutorial. Intro 씬 + 스킵 기능(아무 입력 시 즉시 Tutorial로) 필요 — 미구현.
     Tutorial,
     CharacterSelect,
     Game,

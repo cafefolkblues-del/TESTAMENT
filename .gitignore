@@ -59,3 +59,7 @@ crashlytics-build.properties
 .vs/
 *.csproj
 *.sln
+
+# Editor screenshot artifacts
+Assets/Screenshots/
+Assets/Screenshots.meta
