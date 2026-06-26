@@ -10,6 +10,7 @@ public class GameSceneManager : MonoBehaviour
     [SerializeField] GameState         _gameState;
     [SerializeField] CharacterRoster   _roster;
     [SerializeField] EnemySpawner      _spawner;
+    [SerializeField] DistanceScoreTracker _scoreTracker;   // 거리 스코어 — 사망 중 정지 제어
     [SerializeField] ResultUI          _resultUI;
     [SerializeField] ContinueCountdown _countdown;       // ResultUI에서 이관 — 사망 흐름 통제 통합
     [SerializeField] PlayerCharacterLoader _playerLoader; // 플레이어 로드 진입점 — Loader.Start 대신 Manager가 호출
@@ -66,6 +67,7 @@ public class GameSceneManager : MonoBehaviour
         // 즉시 입력/스폰 정지 — 사망 시점부터 새 적/입력 차단
         _playerController.SetInputEnabled(false);
         _spawner.Pause();
+        _scoreTracker.Pause();
         StartCoroutine(DeathSequence());
     }
 
@@ -100,6 +102,7 @@ public class GameSceneManager : MonoBehaviour
         _gameState.coinCount--;
         _playerHealth.Revive();
         _spawner.Resume();
+        _scoreTracker.Resume();
         _playerController.SetInputEnabled(true);
         _resultUI.Hide();
     }
