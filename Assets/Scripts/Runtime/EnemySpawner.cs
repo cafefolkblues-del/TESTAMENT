@@ -60,6 +60,8 @@ public class EnemySpawner : MonoBehaviour
     void SpawnEnemy(EnemyData data)
     {
         if (data == null || _enemyPrefab == null) return;
+        // 거대형 등장 시 무전 경고 (GDD: 동료 무전 예고 — 현재는 스폰 시점 통보, 사전 예고는 추후)
+        if (data.enemyType == EnemyType.Giant) RadioFeed.Post("거대형 접근!");
         // 제너릭 프리팹 1종을 EnemyData로 구성 (Instantiate 직후 Init). 풀링은 후순위.
         Instantiate(_enemyPrefab, _spawnPoint.position, Quaternion.identity).Init(data);
     }

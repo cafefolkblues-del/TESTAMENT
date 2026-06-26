@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: PressStart2P-Regular SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: -801186333
   material: {fileID: 5478537549878325754}
-  materialHashCode: 0
+  materialHashCode: -1858621597
   m_Version: 1.1.0
   m_SourceFontFileGUID: 9d4d48efd31f4744b869897d59913c0f
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 9d4d48efd31f4744b869897d59913c0f, type: 3}
@@ -2399,7 +2399,8 @@ MonoBehaviour:
   m_FontFeatureTable:
     m_GlyphPairAdjustmentRecords: []
   fallbackFontAssets: []
-  m_FallbackFontAssetTable: []
+  m_FallbackFontAssetTable:
+  - {fileID: 11400000, guid: 6d2cfa2e3e165b14482d44e44b1593c5, type: 2}
   m_CreationSettings:
     sourceFontFileName: 
     sourceFontFileGUID: 9d4d48efd31f4744b869897d59913c0f
@@ -2566,9 +2567,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.8333333
+    - _ScaleRatioB: 0.6770833
+    - _ScaleRatioC: 0.6770833
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
