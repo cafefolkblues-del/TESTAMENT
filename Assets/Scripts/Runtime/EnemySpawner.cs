@@ -7,6 +7,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] EnemyData   _giantData;
     [SerializeField] GameState   _gameState;
     [SerializeField] Transform   _spawnPoint;
+    [SerializeField] Enemy       _enemyPrefab;   // 제너릭 적 프리팹 — EnemyData로 구성
     [SerializeField] float       _spawnInterval = 2f;
 
     Coroutine _spawnCoroutine;
@@ -58,7 +59,8 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemy(EnemyData data)
     {
-        if (data == null) return;
-        // stub — 적 프리팹 시스템 구현 시 연결
+        if (data == null || _enemyPrefab == null) return;
+        // 제너릭 프리팹 1종을 EnemyData로 구성 (Instantiate 직후 Init). 풀링은 후순위.
+        Instantiate(_enemyPrefab, _spawnPoint.position, Quaternion.identity).Init(data);
     }
 }
