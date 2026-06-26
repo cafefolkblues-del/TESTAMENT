@@ -11,6 +11,7 @@ public class AbilityHandler : MonoBehaviour
     [SerializeField] float revolverCooldown   = 0.5f;
     [SerializeField] int   shotgunPellets     = 6;
     [SerializeField] float shotgunSpread      = 30f;
+    [SerializeField] float shotgunCooldown    = 0.6f;   // 밀 우클릭 홀드 산탄 간격 (홀드 폭주 방지)
     [SerializeField] float meleeRange         = 1.5f;
     [SerializeField] float meleeCooldown      = 0.4f;
     [SerializeField] float hackDuration       = 3f;
@@ -33,9 +34,9 @@ public class AbilityHandler : MonoBehaviour
 
     AbilityType _left;
     AbilityType _right;
-    float      _fireTimer;
-    float      _cooldownTimer;
-    bool       _manualAimActive;
+    float      _fireTimer;       // 헬 기관총 연사 간격 (좌·우 공용 — 같은 총)
+    float      _cooldownTimer;   // 밀 리볼버 단발 쿨 (좌)
+    float      _shotgunTimer;    // 밀 샷건 홀드 간격 (우)
     bool       _chainsawEnhanced;
     float      _chainsawTimer;
     LucyWeapon _lucyWeapon;
@@ -54,6 +55,7 @@ public class AbilityHandler : MonoBehaviour
     {
         _fireTimer     -= Time.deltaTime;
         _cooldownTimer -= Time.deltaTime;
+        _shotgunTimer  -= Time.deltaTime;
         UpdateChainsawTimer();
         if (_left == AbilityType.AutoWeaponSwap) UpdateLucyWeapon();
     }
@@ -71,29 +73,39 @@ public class AbilityHandler : MonoBehaviour
         }
     }
 
+    // 좌클릭 = 자동조준 발사 (홀드 연사 무기)
     public void OnLeftHeld()
     {
         switch (_left)
         {
-            case AbilityType.MachineGunExplosive: Fire_MachineGun(); break;
+            case AbilityType.MachineGunExplosive: Fire_MachineGun(manual: false); break;
         }
     }
 
     public void OnLeftUp() { }
 
+    // 우클릭 = 수동조준 발사. 연사/홀드 무기는 OnRightHeld에서 처리(아래).
+    // 토글 아님 — 누르는 동안 마우스 방향으로 직접 발사. 루시/릴/빌 special만 Down에 잔류.
     public void OnRightDown()
     {
         switch (_right)
         {
-            case AbilityType.ManualAim:        Toggle_ManualAim();                       break;
-            case AbilityType.ShotgunModeHold:  Fire_Shotgun();                           break;
-            case AbilityType.ManualWeaponSwap: Swap_ManualLucy();                        break;
-            case AbilityType.GuardAndCharge:   StartCoroutine(DashParry_Ril());          break;
-            case AbilityType.EnemyHack:        HackEnemy_Vil();                          break;
+            case AbilityType.ManualWeaponSwap: Swap_ManualLucy();                break;
+            case AbilityType.GuardAndCharge:   StartCoroutine(DashParry_Ril());  break;
+            case AbilityType.EnemyHack:        HackEnemy_Vil();                  break;
         }
     }
 
-    public void OnRightHeld() { }
+    // 우클릭 홀드 = 수동조준 연사 (헬 기관총 / 밀 샷건)
+    public void OnRightHeld()
+    {
+        switch (_right)
+        {
+            case AbilityType.ManualAim:       Fire_MachineGun(manual: true); break; // 헬 수동 기관총
+            case AbilityType.ShotgunModeHold: Fire_Shotgun(manual: true);   break; // 밀 수동 샷건
+        }
+    }
+
     public void OnRightUp()   { }
 
     // ── 공통 유틸 ─────────────────────────────────────────────────
@@ -163,16 +175,14 @@ public class AbilityHandler : MonoBehaviour
 
     // ── 헬 ────────────────────────────────────────────────────────
 
-    void Fire_MachineGun()
+    // 헬 기관총 — manual: 좌클릭=false(자동조준), 우클릭=true(마우스)
+    void Fire_MachineGun(bool manual)
     {
         if (_fireTimer > 0f) return;
-        // 헬 우클릭 ManualAim 토글 시 마우스 방향, 아니면 자동조준
-        if (!TryAim(autoAimRange, _manualAimActive, out var dir)) return;
+        if (!TryAim(autoAimRange, manual, out var dir)) return; // 자동 시 타겟 없으면 스킵
         FireStraight(dir, hellMachineGunDamage);
         _fireTimer = machineGunFireRate;
     }
-
-    void Toggle_ManualAim() => _manualAimActive = !_manualAimActive;
 
     // ── 밀 ────────────────────────────────────────────────────────
 
@@ -184,11 +194,13 @@ public class AbilityHandler : MonoBehaviour
         _cooldownTimer = revolverCooldown;
     }
 
-    // 밀 우클릭 = 마우스 수동조준 산탄. manual=true라 TryAim은 항상 방향을 반환.
-    void Fire_Shotgun()
+    // 밀 샷건 — 우클릭 홀드 수동조준 산탄. shotgunCooldown으로 홀드 연사 간격 제한.
+    void Fire_Shotgun(bool manual)
     {
-        if (!TryAim(autoAimRange, true, out var dir)) return;
+        if (_shotgunTimer > 0f) return;
+        if (!TryAim(autoAimRange, manual, out var dir)) return;
         FireSpreadDir(dir, shotgunPellets, shotgunSpread, milShotgunDamage);
+        _shotgunTimer = shotgunCooldown;
     }
 
     // ── 루시 ──────────────────────────────────────────────────────
