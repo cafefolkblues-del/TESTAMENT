@@ -94,6 +94,8 @@ public class PlayerController : MonoBehaviour
         _moveSpeed = data.moveSpeed;
         _jumpForce = data.jumpForce;
         _ability.Init(data.leftAbility, data.rightAbility);
+        // 상태 디버그 — 어떤 캐릭터/능력/스탯으로 초기화됐는지 (좌클자동/우클수동 검증용)
+        Debug.Log($"[Player] 캐릭터 로드: {data.characterName} | 좌={data.leftAbility} 우={data.rightAbility} | moveSpeed={_moveSpeed} jumpForce={_jumpForce}");
     }
 
     void Update()

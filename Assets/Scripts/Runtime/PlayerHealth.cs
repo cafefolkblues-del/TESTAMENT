@@ -28,7 +28,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public void TakeDamage(int amount)
     {
         if (_isDead) return;
+        int before = _currentHp;
         _currentHp -= amount;
+        Debug.Log($"[Player] 피해 {amount} → HP {before}→{_currentHp}");   // 상태 디버그
         if (_currentHp <= 0) Die();
     }
 
@@ -36,6 +38,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         if (_isDead) return;
         _isDead = true;
+        Debug.Log("[Player] 사망");   // 상태 디버그
         OnDeath?.Invoke();
     }
 
@@ -43,5 +46,6 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         _isDead    = false;
         _currentHp = _maxHp;
+        Debug.Log($"[Player] 부활 (HP {_maxHp})");   // 상태 디버그
     }
 }
