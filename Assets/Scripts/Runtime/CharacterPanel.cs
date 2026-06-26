@@ -10,7 +10,6 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     [SerializeField] Image _portrait;
     [SerializeField] Image _border;
-    [SerializeField] Image _flashOverlay;
     [SerializeField] TMP_Text _nameText;
     [SerializeField] RectTransform _nameRect;
     [SerializeField] Material _grayscaleMaterialTemplate;
@@ -44,6 +43,7 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _nameBaseY = _nameRect.anchoredPosition.y;
 
         _mat.SetFloat("_GrayscaleAmount", 1f);
+        _mat.SetFloat("_FlashAmount", 0f);
         SetBorderAlpha(0f);
         SetNameAlpha(0f);
         SetNameY(_nameBaseY - nameSlideOffset);
@@ -90,15 +90,16 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _manager.OnPanelSelected(this);
     }
 
-    // 선택 시 흰색 플래시 N회 — Manager의 PlayTransition에서 yield return으로 chain
+    // 선택 시 흰색 플래시 N회 — Manager의 PlayTransition에서 yield return으로 chain.
+    // FlashOverlay 박스 대신 shader _FlashAmount로 Portrait sprite 밝기 변화 (캐릭터 실루엣 그대로, 박스 튀어나옴 X)
     public IEnumerator BlinkWhite(int count, float interval)
     {
         for (int i = 0; i < count * 2; i++)
         {
-            SetFlashAlpha(i % 2 == 0 ? 1f : 0f);
+            _mat.SetFloat("_FlashAmount", i % 2 == 0 ? 1f : 0f);
             yield return new WaitForSeconds(interval);
         }
-        SetFlashAlpha(0f);
+        _mat.SetFloat("_FlashAmount", 0f);
     }
 
     void StopHoverAnim()
@@ -141,8 +142,6 @@ public class CharacterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     void SetNameAlpha(float a) { Color c = _nameText.color; c.a = a; _nameText.color = c; }
     float GetNameAlpha() => _nameText.color.a;
-
-    void SetFlashAlpha(float a) { Color c = _flashOverlay.color; c.a = a; _flashOverlay.color = c; }
 
     void SetNameY(float y) { Vector2 p = _nameRect.anchoredPosition; p.y = y; _nameRect.anchoredPosition = p; }
 }

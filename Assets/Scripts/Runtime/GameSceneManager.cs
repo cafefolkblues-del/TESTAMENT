@@ -12,6 +12,7 @@ public class GameSceneManager : MonoBehaviour
     [SerializeField] EnemySpawner      _spawner;
     [SerializeField] ResultUI          _resultUI;
     [SerializeField] ContinueCountdown _countdown;       // ResultUI에서 이관 — 사망 흐름 통제 통합
+    [SerializeField] PlayerCharacterLoader _playerLoader; // 플레이어 로드 진입점 — Loader.Start 대신 Manager가 호출
     [SerializeField] PlayerController  _playerController;
     [SerializeField] PlayerHealth      _playerHealth;
     [SerializeField] CanvasGroup       _fadeOverlay;     // 게임오버 페이드 — Game 씬의 글로벌 오버레이
@@ -40,13 +41,9 @@ public class GameSceneManager : MonoBehaviour
     {
         // Reset 호출은 InitGame 한 곳에서만 — 게임오버 시 별도 Reset 호출 제거 (책임 단일화)
         _gameState.Reset();
-        SpawnPlayer();
+        // 플레이어 초기화 진입점 일원화 — Loader 자동 Start 대신 Manager가 Reset 직후 호출(순서 보장)
+        _playerLoader.Load();
         InitCompanions();
-    }
-
-    void SpawnPlayer()
-    {
-        // stub — PlayerCharacterLoader.Spawn(_selectedCharacter.character) 같은 호출로 연결 예정
     }
 
     void InitCompanions()

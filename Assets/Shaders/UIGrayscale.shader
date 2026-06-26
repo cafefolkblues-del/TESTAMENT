@@ -5,6 +5,7 @@ Shader "TESTAMENT/UIGrayscale"
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
         _GrayscaleAmount ("Grayscale", Range(0,1)) = 1
+        _FlashAmount ("Flash", Range(0,1)) = 0
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         _StencilOp ("Stencil Operation", Float) = 0
@@ -68,6 +69,7 @@ Shader "TESTAMENT/UIGrayscale"
             fixed4    _TextureSampleAdd;
             float4    _ClipRect;
             float     _GrayscaleAmount;
+            float     _FlashAmount;
 
             v2f vert(appdata_t v)
             {
@@ -86,6 +88,8 @@ Shader "TESTAMENT/UIGrayscale"
                 half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
                 float gray  = dot(color.rgb, float3(0.299, 0.587, 0.114));
                 color.rgb   = lerp(color.rgb, float3(gray, gray, gray), _GrayscaleAmount);
+                // Flash 합성 이유 — FlashOverlay 박스 대신 Portrait 자체 밝기 변화로 클릭 깜빡 표현 (alpha 유지, RGB만 흰색 lerp)
+                color.rgb   = lerp(color.rgb, float3(1, 1, 1), _FlashAmount);
 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);

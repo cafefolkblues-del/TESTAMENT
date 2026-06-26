@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lucy
   m_EditorClassIdentifier: 
   characterName: "\uB8E8\uC2DC"
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 400cb66b52d175847ad3473865c7911e, type: 3}
   moveSpeed: 5
   jumpForce: 10
   leftAbility: 2

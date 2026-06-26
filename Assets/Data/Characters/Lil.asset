@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lil
   m_EditorClassIdentifier: 
   characterName: "\uB9B4"
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 66a91b3a736f3b8409aa3a9c531f46f0, type: 3}
   moveSpeed: 5
   jumpForce: 10
   leftAbility: 3
