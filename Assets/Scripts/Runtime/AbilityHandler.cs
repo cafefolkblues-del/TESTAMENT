@@ -14,6 +14,7 @@ public class AbilityHandler : MonoBehaviour
     [SerializeField] float shotgunCooldown    = 0.6f;   // 밀 우클릭 홀드 산탄 간격 (홀드 폭주 방지)
     [SerializeField] float meleeRange         = 1.5f;
     [SerializeField] float meleeCooldown      = 0.4f;
+    [SerializeField] float _multiHitInterval  = 0.1f;   // 근접 다단 히트 간격
     [SerializeField] float hackDuration       = 3f;
     [SerializeField] float chainsawDuration   = 5f;
     [SerializeField] float lucyMidThreshold   = 5f;
@@ -23,6 +24,11 @@ public class AbilityHandler : MonoBehaviour
     [SerializeField] ProjectilePool _projectilePool;
     [SerializeField] Transform      _firePoint;   // 머즐 위치 (null이면 transform 사용)
     [SerializeField] Camera         _camera;       // 수동조준 스크린→월드 변환용 (null이면 Camera.main)
+    [SerializeField] float          bulletSpeed = 18f;   // 일반탄 속도 (바주카 등 특수탄은 각 캐릭터 턴에서 별도 주입)
+
+    // 탄창 — 검증 스캐폴드(명명 필드). 3번째 캐릭터 전에 무기별 SO로 이전 예정.
+    [Header("Magazine")]
+    [SerializeField] Magazine hellMgMag;
 
     [Header("Damage (int, EnemyData.hp와 동일 단위)")]
     [SerializeField] int hellMachineGunDamage = 6;
@@ -49,6 +55,7 @@ public class AbilityHandler : MonoBehaviour
         _cooldownTimer    = 0f;
         _chainsawEnhanced = false;
         _lucyWeapon       = LucyWeapon.DualPistols;
+        hellMgMag.Reset();
     }
 
     void Update()
@@ -56,6 +63,7 @@ public class AbilityHandler : MonoBehaviour
         _fireTimer     -= Time.deltaTime;
         _cooldownTimer -= Time.deltaTime;
         _shotgunTimer  -= Time.deltaTime;
+        hellMgMag.Tick(Time.deltaTime);   // 전 탄창 항시 Tick (봉합선2서 나머지 추가)
         UpdateChainsawTimer();
         if (_left == AbilityType.AutoWeaponSwap) UpdateLucyWeapon();
     }
@@ -124,10 +132,27 @@ public class AbilityHandler : MonoBehaviour
         return nearest;
     }
 
-    // ── 미배선 stub (루시·릴 거리분기/근접용 — 별도 단계에서 구현) ──
+    // ── 미배선 stub (루시 거리분기 발사용 — 루시 턴에서 구현) ──
     void FireProjectile(Transform target, float damage) { } // stub
     void FireSpread(int pellets, float spread)           { } // stub
-    void MeleeHit(float range, float damage)             { } // stub
+
+    // ── 근접 타격 capability (단일=hits1 / 다단=hits N) — 루시 건틀릿·릴 좌클 사용 ──
+    void MeleeHit(float range, int damage, int hits = 1) => StartCoroutine(MeleeRoutine(range, damage, hits));
+
+    IEnumerator MeleeRoutine(float range, int damage, int hits)
+    {
+        for (int i = 0; i < hits; i++)
+        {
+            var targets = Physics2D.OverlapCircleAll(transform.position, range);
+            foreach (var t in targets)
+            {
+                var d = t.GetComponent<IDamageable>();
+                if (d == null || d.Faction == PlayerFaction) continue;   // 비대상·아군 통과
+                d.TakeDamage(damage);
+            }
+            if (i < hits - 1) yield return new WaitForSeconds(_multiHitInterval);
+        }
+    }
 
     // ── 발사 코어 (헬·밀 배선) ────────────────────────────────────
 
@@ -154,14 +179,14 @@ public class AbilityHandler : MonoBehaviour
         return true;
     }
 
-    // 단발 직선 — 풀에서 꺼내 방향·데미지 주입. 발사체는 DamageSource 없이 push로 피해를 줌.
-    void FireStraight(Vector2 dir, int damage)
+    // 단발 직선 — 풀에서 꺼내 방향·데미지·속도·범위 주입. 발사체는 DamageSource 없이 push로 피해를 줌.
+    void FireStraight(Vector2 dir, int damage, float speed, float aoe)
     {
-        _projectilePool.Get().Launch(FirePoint, dir, damage, PlayerFaction, _projectilePool);
+        _projectilePool.Get().Launch(FirePoint, dir, damage, PlayerFaction, _projectilePool, speed, aoe);
     }
 
     // 산탄 — baseDir 기준 콘 분산으로 N발. 펠릿마다 독립 발사체.
-    void FireSpreadDir(Vector2 baseDir, int pellets, float spreadDeg, int damage)
+    void FireSpreadDir(Vector2 baseDir, int pellets, float spreadDeg, int damage, float speed, float aoe)
     {
         float baseAng = Mathf.Atan2(baseDir.y, baseDir.x) * Mathf.Rad2Deg;
         float start   = baseAng - spreadDeg * 0.5f;
@@ -169,7 +194,7 @@ public class AbilityHandler : MonoBehaviour
         for (int i = 0; i < pellets; i++)
         {
             float a = (start + step * i) * Mathf.Deg2Rad;
-            FireStraight(new Vector2(Mathf.Cos(a), Mathf.Sin(a)), damage);
+            FireStraight(new Vector2(Mathf.Cos(a), Mathf.Sin(a)), damage, speed, aoe);
         }
     }
 
@@ -178,9 +203,11 @@ public class AbilityHandler : MonoBehaviour
     // 헬 기관총 — manual: 좌클릭=false(자동조준), 우클릭=true(마우스)
     void Fire_MachineGun(bool manual)
     {
-        if (_fireTimer > 0f) return;
+        if (_fireTimer > 0f) return;            // 연사율 게이트
+        if (!hellMgMag.CanFire) return;         // 탄약 게이트 (빈 탄창/장전중 발사 X)
         if (!TryAim(autoAimRange, manual, out var dir)) return; // 자동 시 타겟 없으면 스킵
-        FireStraight(dir, hellMachineGunDamage);
+        FireStraight(dir, hellMachineGunDamage, bulletSpeed, 0f);
+        hellMgMag.Consume();
         _fireTimer = machineGunFireRate;
     }
 
@@ -190,7 +217,7 @@ public class AbilityHandler : MonoBehaviour
     {
         if (_cooldownTimer > 0f) return;
         if (!TryAim(autoAimRange, false, out var dir)) return; // 좌클릭 단발 = 자동조준
-        FireStraight(dir, milRevolverDamage);
+        FireStraight(dir, milRevolverDamage, bulletSpeed, 0f);
         _cooldownTimer = revolverCooldown;
     }
 
@@ -199,7 +226,7 @@ public class AbilityHandler : MonoBehaviour
     {
         if (_shotgunTimer > 0f) return;
         if (!TryAim(autoAimRange, manual, out var dir)) return;
-        FireSpreadDir(dir, shotgunPellets, shotgunSpread, milShotgunDamage);
+        FireSpreadDir(dir, shotgunPellets, shotgunSpread, milShotgunDamage, bulletSpeed, 0f);
         _shotgunTimer = shotgunCooldown;
     }
 
@@ -221,7 +248,7 @@ public class AbilityHandler : MonoBehaviour
         {
             case LucyWeapon.DualPistols: FireProjectile(FindNearestEnemy(20f), 0.5f); break;
             case LucyWeapon.Spear:       FireProjectile(FindNearestEnemy(10f), 1.0f); break;
-            case LucyWeapon.Gauntlet:    MeleeHit(meleeRange, 2.0f);                  break;
+            case LucyWeapon.Gauntlet:    MeleeHit(meleeRange, 2);                     break;   // 임시 dmg — 루시 턴 확정
         }
     }
 
@@ -233,7 +260,7 @@ public class AbilityHandler : MonoBehaviour
     void MeleeAutoHit_Ril()
     {
         if (_cooldownTimer > 0f) return;
-        MeleeHit(meleeRange, _chainsawEnhanced ? 3f : 1f);
+        MeleeHit(meleeRange, _chainsawEnhanced ? 3 : 1);   // 임시 dmg — 릴 턴 확정
         _cooldownTimer = meleeCooldown;
     }
 

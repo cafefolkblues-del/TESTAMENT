@@ -304,8 +304,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameState: {fileID: 11400000, guid: 8d712f93690715b43832b1183b30d4c5, type: 2}
   _ambientInterval: {x: 8, y: 15}
-  _recentPenaltyWindow: 10
-  _recentPenaltyMult: 0.2
   _displayDuration: 3
   _queueCap: 2
   _deathTriggers:
@@ -1757,6 +1755,9 @@ MonoBehaviour:
   _projectilePool: {fileID: 904472958}
   _firePoint: {fileID: 0}
   _camera: {fileID: 1665374101}
+  hellMgMag:
+    capacity: 30
+    reloadTime: 1.5
   hellMachineGunDamage: 6
   milRevolverDamage: 18
   milShotgunDamage: 6
