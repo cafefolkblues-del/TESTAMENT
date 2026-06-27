@@ -58,6 +58,12 @@ public class AbilityHandler : MonoBehaviour
         hellMgMag.Reset();
     }
 
+    // ── 치트 훅 (DebugCheatPanel용) ──
+    // TODO: 캐릭터 탄창 추가 시(밀 리볼버/샷건, 빌 해킹툴 등) 여기 모두 등록.
+    void ForEachMag(System.Action<Magazine> op) => op(hellMgMag);
+    public void DebugRefillAmmo()              => ForEachMag(m => m.Reset());
+    public void DebugSetInfiniteAmmo(bool on)  => ForEachMag(m => m.DebugInfinite = on);
+
     void Update()
     {
         _fireTimer     -= Time.deltaTime;

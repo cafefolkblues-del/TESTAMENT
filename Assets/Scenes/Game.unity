@@ -1472,6 +1472,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014261402}
   m_CullTransparentMesh: 1
+--- !u!1 &1115693040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1115693042}
+  - component: {fileID: 1115693041}
+  m_Layer: 0
+  m_Name: __DEBUG_CheatPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1115693041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115693040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 135da34d08bf80c4a8d9a4fa701970aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _loader: {fileID: 1223603062}
+  _roster: {fileID: 11400000, guid: e7658c379b99b8442981e782bddf6cac, type: 2}
+  _playerHealth: {fileID: 1223603063}
+  _ability: {fileID: 1223603065}
+  _spawner: {fileID: 2053069536}
+  _camera: {fileID: 1665374101}
+  _show: 1
+--- !u!4 &1115693042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115693040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1147110669
 GameObject:
   m_ObjectHideFlags: 0
@@ -1707,6 +1758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxHp: 1
+  DebugInvincible: 0
 --- !u!114 &1223603064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1748,6 +1800,7 @@ MonoBehaviour:
   shotgunCooldown: 0.6
   meleeRange: 1.5
   meleeCooldown: 0.4
+  _multiHitInterval: 0.1
   hackDuration: 3
   chainsawDuration: 5
   lucyMidThreshold: 5
@@ -1755,9 +1808,11 @@ MonoBehaviour:
   _projectilePool: {fileID: 904472958}
   _firePoint: {fileID: 0}
   _camera: {fileID: 1665374101}
+  bulletSpeed: 18
   hellMgMag:
     capacity: 30
     reloadTime: 1.5
+    DebugInfinite: 0
   hellMachineGunDamage: 6
   milRevolverDamage: 18
   milShotgunDamage: 6
@@ -2976,3 +3031,4 @@ SceneRoots:
   - {fileID: 1331835874}
   - {fileID: 1434636685}
   - {fileID: 283892070}
+  - {fileID: 1115693042}

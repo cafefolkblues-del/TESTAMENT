@@ -12,7 +12,9 @@ public class Magazine
     bool  _reloading;
     float _timer;
 
-    public bool CanFire   => !_reloading && _ammo > 0;
+    public bool DebugInfinite;   // 치트 — on이면 무한탄(게이트 통과·소비 무시)
+
+    public bool CanFire   => DebugInfinite || (!_reloading && _ammo > 0);
     public int  Ammo      => _ammo;        // HUD용(추후)
     public bool Reloading => _reloading;
 
@@ -26,6 +28,7 @@ public class Magazine
     // 발사 1회 소비. 가드: CanFire 게이트 없이 호출돼도 음수·이중장전 방지.
     public void Consume()
     {
+        if (DebugInfinite) return;             // 치트 무한탄 — 소비 안 함
         if (_reloading || _ammo <= 0) return;
         if (--_ammo <= 0) { _reloading = true; _timer = reloadTime; }
     }

@@ -10,6 +10,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     int  _currentHp;
     bool _isDead;
 
+    public bool DebugInvincible;   // 치트 — on이면 피해 무시
+
     // IDamageable — push 피해(적 발사체 등 향후)와 pull 피해가 같은 진영 판정 기준을 공유
     public Faction Faction => Faction.Player;
 
@@ -28,6 +30,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public void TakeDamage(int amount)
     {
         if (_isDead) return;
+        if (DebugInvincible) return;   // 치트 무적
         int before = _currentHp;
         _currentHp -= amount;
         Debug.Log($"[Player] 피해 {amount} → HP {before}→{_currentHp}");   // 상태 디버그

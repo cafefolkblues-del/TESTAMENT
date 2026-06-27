@@ -18,4 +18,11 @@ public class PlayerCharacterLoader : MonoBehaviour
     }
 
     public CharacterData Character => _selectedCharacter.character;
+
+    // 치트 — 선택 SO 갱신 후 재로드(스프라이트+능력 동시 스왑). DebugCheatPanel 라이브 교체용.
+    public void LoadCharacter(CharacterData data)
+    {
+        _selectedCharacter.character = data;
+        Load();
+    }
 }

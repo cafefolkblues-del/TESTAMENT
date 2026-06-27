@@ -68,4 +68,14 @@ public class EnemySpawner : MonoBehaviour
         // 제너릭 프리팹 1종을 EnemyData로 구성 (Instantiate 직후 Init). 풀링은 후순위.
         Instantiate(_enemyPrefab, _spawnPoint.position, Quaternion.identity).Init(data);
     }
+
+    // 치트 — 지정 위치에 적 1마리 즉시 스폰. PickEnemy 재사용(웨이브 가중치 동일).
+    public Enemy DebugSpawnAt(Vector2 pos)
+    {
+        var data = PickEnemy();
+        if (data == null || _enemyPrefab == null) return null;
+        var enemy = Instantiate(_enemyPrefab, pos, Quaternion.identity);
+        enemy.Init(data);
+        return enemy;
+    }
 }
