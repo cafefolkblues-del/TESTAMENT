@@ -9,11 +9,12 @@ public enum AbilityType
     MeleeAutoHit,
     HackingTool,
     // 우클릭
-    ManualAim,
+    ManualAim,        // (구 헬 수동기관총 — 미사용, enum 값 유지 위해 잔존)
     ShotgunModeHold,
     ManualWeaponSwap,
     GuardAndCharge,
     EnemyHack,
+    Bazooka,          // 헬 우클 — 느린 폭발 로켓(끝에 append, 기존 값 보존)
 }
 
 [CreateAssetMenu(fileName = "CharacterData", menuName = "TESTAMENT/Character Data")]

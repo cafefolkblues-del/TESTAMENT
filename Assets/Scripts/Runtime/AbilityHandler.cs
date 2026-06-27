@@ -29,6 +29,13 @@ public class AbilityHandler : MonoBehaviour
     // 탄창 — 검증 스캐폴드(명명 필드). 3번째 캐릭터 전에 무기별 SO로 이전 예정.
     [Header("Magazine")]
     [SerializeField] Magazine hellMgMag;
+    [SerializeField] Magazine bazookaMag;   // 헬 우클 — capacity ~4
+
+    [Header("헬 바주카 (우클)")]
+    [SerializeField] float bazookaCooldown = 1.0f;   // 발사 간격 (느린 신중 발사)
+    [SerializeField] int   bazookaDamage   = 30;     // placeholder — 밸런스 패스 확정
+    [SerializeField] float bazookaSpeed    = 8f;     // 일반탄(18)보다 느림
+    [SerializeField] float bazookaAoe      = 1.5f;   // 폭발 반경
 
     [Header("Damage (int, EnemyData.hp와 동일 단위)")]
     [SerializeField] int hellMachineGunDamage = 6;
@@ -43,6 +50,7 @@ public class AbilityHandler : MonoBehaviour
     float      _fireTimer;       // 헬 기관총 연사 간격 (좌·우 공용 — 같은 총)
     float      _cooldownTimer;   // 밀 리볼버 단발 쿨 (좌)
     float      _shotgunTimer;    // 밀 샷건 홀드 간격 (우)
+    float      _bazookaTimer;    // 헬 바주카 발사 간격 (우)
     bool       _chainsawEnhanced;
     float      _chainsawTimer;
     LucyWeapon _lucyWeapon;
@@ -56,11 +64,12 @@ public class AbilityHandler : MonoBehaviour
         _chainsawEnhanced = false;
         _lucyWeapon       = LucyWeapon.DualPistols;
         hellMgMag.Reset();
+        bazookaMag.Reset();
     }
 
     // ── 치트 훅 (DebugCheatPanel용) ──
     // TODO: 캐릭터 탄창 추가 시(밀 리볼버/샷건, 빌 해킹툴 등) 여기 모두 등록.
-    void ForEachMag(System.Action<Magazine> op) => op(hellMgMag);
+    void ForEachMag(System.Action<Magazine> op) { op(hellMgMag); op(bazookaMag); }
     public void DebugRefillAmmo()              => ForEachMag(m => m.Reset());
     public void DebugSetInfiniteAmmo(bool on)  => ForEachMag(m => m.DebugInfinite = on);
 
@@ -69,7 +78,9 @@ public class AbilityHandler : MonoBehaviour
         _fireTimer     -= Time.deltaTime;
         _cooldownTimer -= Time.deltaTime;
         _shotgunTimer  -= Time.deltaTime;
-        hellMgMag.Tick(Time.deltaTime);   // 전 탄창 항시 Tick (봉합선2서 나머지 추가)
+        _bazookaTimer  -= Time.deltaTime;
+        hellMgMag.Tick(Time.deltaTime);   // 전 탄창 항시 Tick (비활성 무기도 재장전)
+        bazookaMag.Tick(Time.deltaTime);
         UpdateChainsawTimer();
         if (_left == AbilityType.AutoWeaponSwap) UpdateLucyWeapon();
     }
@@ -107,6 +118,8 @@ public class AbilityHandler : MonoBehaviour
             case AbilityType.ManualWeaponSwap: Swap_ManualLucy();                break;
             case AbilityType.GuardAndCharge:   StartCoroutine(DashParry_Ril());  break;
             case AbilityType.EnemyHack:        HackEnemy_Vil();                  break;
+            case AbilityType.Bazooka:          Fire_Bazooka();                   break; // 헬 우클 단발
+
         }
     }
 
@@ -215,6 +228,17 @@ public class AbilityHandler : MonoBehaviour
         FireStraight(dir, hellMachineGunDamage, bulletSpeed, 0f);
         hellMgMag.Consume();
         _fireTimer = machineGunFireRate;
+    }
+
+    // 헬 바주카 — 우클 단발 수동조준. 느린 speed + aoe로 범위 폭발(코어 Projectile capability 사용).
+    void Fire_Bazooka()
+    {
+        if (_bazookaTimer > 0f) return;          // 발사 간격 게이트
+        if (!bazookaMag.CanFire) return;         // 탄약 게이트
+        if (!TryAim(autoAimRange, manual: true, out var dir)) return;  // 수동조준(마우스)
+        FireStraight(dir, bazookaDamage, bazookaSpeed, bazookaAoe);
+        bazookaMag.Consume();
+        _bazookaTimer = bazookaCooldown;
     }
 
     // ── 밀 ────────────────────────────────────────────────────────

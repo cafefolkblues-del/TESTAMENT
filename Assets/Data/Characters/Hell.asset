@@ -17,5 +17,5 @@ MonoBehaviour:
   moveSpeed: 5
   jumpForce: 10
   leftAbility: 0
-  rightAbility: 5
+  rightAbility: 10
   dialogue: {fileID: 11400000, guid: 2e61d7405aefbfd468ee5ba0afb06c9d, type: 2}

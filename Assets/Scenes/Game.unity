@@ -1813,6 +1813,14 @@ MonoBehaviour:
     capacity: 30
     reloadTime: 1.5
     DebugInfinite: 0
+  bazookaMag:
+    capacity: 4
+    reloadTime: 2
+    DebugInfinite: 0
+  bazookaCooldown: 1
+  bazookaDamage: 30
+  bazookaSpeed: 8
+  bazookaAoe: 1.5
   hellMachineGunDamage: 6
   milRevolverDamage: 18
   milShotgunDamage: 6
